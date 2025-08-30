@@ -1,2 +1,3 @@
 # CleanUpTool Requirements
-# Add any dependencies here
+# Windows native multi-folder picker
+comtypes>=1.1.14

@@ -1,0 +1,45 @@
+            messagebox.showerror("Error", f"Export failed: {exc}")
+
+    def sort_by(self, column: str) -> None:
+        # Toggle sort order per column
+        if not hasattr(self, '_sort_reverse'):
+            self._sort_reverse = {"path": False, "size": True}
+        self._sort_reverse[column] = not self._sort_reverse[column]
+        reverse = self._sort_reverse[column]
+        items = list(self.tree.get_children(""))
+        def key_func(iid):
+            vals = self.tree.item(iid, "values")
+            if column == "size":
+                try:
+                    return float(vals[1])
+                except Exception:
+                    return 0.0
+            return (vals[0] or "").lower()
+        items.sort(key=key_func, reverse=reverse)
+        for index, iid in enumerate(items):
+            self.tree.move(iid, "", index)
+
+    def get_selected_path(self) -> Optional[str]:
+        selection = self.tree.selection()
+        if not selection:
+            return None
+        return self.tree.item(selection[0], "values")[0]
+
+    def open_selected(self, event=None) -> None:
+        path = self.get_selected_path()
+        if path:
+            open_file_location(path)
+
+    def delete_selected(self) -> None:
+        path = self.get_selected_path()
+        if path and messagebox.askyesno("Delete", f"Delete {path}?"):
+            try:
+                os.remove(path)
+                self.tree.delete(self.tree.selection()[0])
+            except Exception as exc:
+                messagebox.showerror("Error", f"Unable to delete file: {exc}")
+
+
+if __name__ == "__main__":
+    app = CleanupGUI()
+    app.mainloop()

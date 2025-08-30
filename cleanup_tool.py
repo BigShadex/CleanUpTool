@@ -89,7 +89,12 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="CleanUpTool - File and directory cleanup utility")
-    parser.add_argument("directory", help="Directory to clean")
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=str(Path.home()),
+        help="Directory to clean (default: your user home)",
+    )
     parser.add_argument("--extensions", nargs="+", help="File extensions to remove (e.g., .tmp .log)")
     parser.add_argument("--remove-empty", action="store_true", help="Remove empty directories")
 
@@ -102,6 +107,9 @@ def main():
 
     if args.remove_empty:
         cleaner.remove_empty_directories(args.directory)
+
+    if not args.extensions and not args.remove_empty:
+        print("No actions specified. Use --extensions and/or --remove-empty, or run the GUI: python cleanup_gui.py")
 
     summary = cleaner.get_cleanup_summary()
     print(f"Cleanup complete!")
